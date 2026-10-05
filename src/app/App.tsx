@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "motion/react";
 import factoryInterface from "../../media/thumbnail/factoryInterface.png";
 import compGameplay from "../../media/thumbnail/compGameplay.png";
 import cryptoDashboard from "../../media/thumbnail/cryptoDashboard.png";
-import cardGame from "../../media/thumbnail/cardGame.png";
-import portfolio from "../../media/thumbnail/portfolio.png";
+import vSaver from "../../media/thumbnail/vSaver.png";
+import ibmHack from "../../media/thumbnail/ibmHack.png";
 import beerInterface from "../../media/thumbnail/beerInterface.png";
 
 export default function App() {
@@ -23,6 +23,13 @@ export default function App() {
   }, []);
 
   const projects = [
+      {
+          title: "Sentinel & Incident Pipeline",
+          description: "Built in 3 days for IBM's \"Bob in Action\" hackathon, where our team placed top 50 among ~4,000 participants and won a ticket to IBM TechXchange 2026. Sentinel is an IBM Bob subagent that triages RPGUnit test failures after every compile, separates outdated tests from genuine regressions, and holds fixes for developer approval. Bob Debug Agent is a Python/React dashboard running an 8-stage debugging pipeline, where 4 parallel subagents cross-check evidence before proposing a root cause. I led the 4-person team across four time zones.",
+          technologies: ["Python", "FastAPI", "React", "TypeScript", "IBM Bob", "watsonx.ai", "IBM i", "RPGUnit"],
+          thumbnailUrl: ibmHack,
+          githubUrl: "https://github.com/ltechsystem/IBM-Bob-Hackathon",
+      },
     {
         title: "Factory Management System",
         description: "Component-based system written in JPMS(Back-end) and React(Front-end), where the user can CRUD components at runtime without recompilation. This solution is meant for factories that seek a modifiable program to automate processes.",
@@ -44,21 +51,13 @@ export default function App() {
         thumbnailUrl: cryptoDashboard,
         githubUrl: "https://github.com/Ltechsystem/Semesterproject_4_Java",
     },
-    {
-        title: "Card Game",
-        description: "A collection of classic card games with an in-game currency. The user can battle the computer with different difficulty levels and win different prices.",
-        technologies: ["C#", "Avalonia", "SQLite"],
-        thumbnailUrl: cardGame,
-        githubUrl: "https://github.com/Ltechsystem/CardGame",
-    },
-    {
-        title: "Portfolio Website",
-        description: "Web application that showcases my projects, skills, and experience. Built with React and TailwindCSS.",
-        technologies: ["Node.js", "React" , "TailwindCSS", "Figma"],
-        thumbnailUrl: portfolio,
-        githubUrl: "https://github.com/Ltechsystem/Projects-portfolio",
-        liveUrl: "https://ltechsystem.github.io/Projects-portfolio/",
-    },
+      {
+          title: "VSaver",
+          description: "A desktop app that keeps a shared game world in sync between friends through Google Drive. A cloud lock makes sure only one person plays at a time, and saves upload automatically once the game has finished writing them. Every transfer is hash-checked and the old world is backed up first, so progress is never lost. Each user signs in with their own Google account, no secrets ship with the app, and it updates itself from GitHub Releases. Used by 3 players.",
+          technologies: ["C#", ".NET", "Avalonia", "MVVM", "OAuth 2.0", "Google Drive API"],
+          thumbnailUrl: vSaver,
+          githubUrl: "https://github.com/ltechsystem/VSaver",
+      },
     {
         title: "Beer Machine Interface",
         description: "Interface to interact with a PLC that controls a Beer Machine. The user can use the solution to queue batches on multiple machines, with an access-based architecture with different roles",
