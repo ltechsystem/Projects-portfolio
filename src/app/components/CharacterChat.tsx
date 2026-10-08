@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Send, X } from "lucide-react";
+import { LEGO_COLORS, randomLegoColor } from "../legoColors";
 
 const QA_PAIRS: Record<string, string> = {
     "What's your background?":
@@ -21,17 +22,32 @@ const IDLE_PROMPTS = [
   "Curious about my stack? Ask away!",
 ];
 
-export function CharacterChat() {
-  const [messages, setMessages] = useState<{ from: "user" | "char"; text: string }[]>([]);
+export function CharacterChat({
+  avatarSrc,
+  legoColors,
+  hideAvatarRing,
+}: { avatarSrc?: string; legoColors?: boolean; hideAvatarRing?: boolean } = {}) {
+  const [messages, setMessages] = useState<{ from: "user" | "char"; text: string; color?: string }[]>([]);
   const [idlePrompt, setIdlePrompt] = useState(0);
+  const [idleColor, setIdleColor] = useState(randomLegoColor);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Each question button gets one fixed Lego color, cycling through the palette in order
+  const questionColors = useMemo(() => {
+    const colors: Record<string, string> = {};
+    Object.keys(QA_PAIRS).forEach((q, i) => {
+      colors[q] = LEGO_COLORS[i % LEGO_COLORS.length];
+    });
+    return colors;
+  }, []);
 
   // Rotate idle prompts
   useEffect(() => {
     const interval = setInterval(() => {
       setIdlePrompt((p) => (p + 1) % IDLE_PROMPTS.length);
+      setIdleColor(randomLegoColor());
     }, 3500);
     return () => clearInterval(interval);
   }, []);
@@ -57,12 +73,16 @@ export function CharacterChat() {
     setIsChatOpen(true);
     setMessages((prev) => [
       ...prev,
-      { from: "user", text: question },
+      { from: "user", text: question, color: legoColors ? randomLegoColor() : undefined },
     ]);
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { from: "char", text: QA_PAIRS[question] ?? "Great question! I'm still thinking about that one... 🤔" },
+        {
+          from: "char",
+          text: QA_PAIRS[question] ?? "Great question! I'm still thinking about that one... 🤔",
+          color: legoColors ? randomLegoColor() : undefined,
+        },
       ]);
     }, 600);
   };
@@ -95,12 +115,25 @@ export function CharacterChat() {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -6, scale: 0.95 }}
               transition={{ duration: 0.35 }}
-              className="absolute left-full ml-5 top-0 whitespace-nowrap bg-background border rounded-2xl px-4 py-2 shadow-md text-sm pointer-events-none"
+              className={`absolute left-full ml-5 top-0 whitespace-nowrap rounded-2xl px-4 py-2 shadow-md text-sm pointer-events-none ${
+                legoColors ? "text-white" : "bg-background border"
+              }`}
+              style={legoColors ? { backgroundColor: idleColor } : undefined}
             >
               {IDLE_PROMPTS[idlePrompt]}
               {/* Arrow pointing left */}
-              <span className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-border" />
-              <span className="absolute right-full top-1/2 -translate-y-1/2 translate-x-[1px] w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-background" />
+              {!legoColors && (
+                <>
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-border" />
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 translate-x-[1px] w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-background" />
+                </>
+              )}
+              {legoColors && (
+                <span
+                  className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent"
+                  style={{ borderRightColor: idleColor }}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -111,10 +144,20 @@ export function CharacterChat() {
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           className="relative"
         >
-          <CharacterSVG isBlinking={isBlinking} />
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt="Avatar"
+              width={160}
+              height={190}
+              className="w-[160px] h-[190px] object-contain"
+            />
+          ) : (
+            <CharacterSVG isBlinking={isBlinking} />
+          )}
 
           {/* Attention nudge ring */}
-          {!isChatOpen && (
+          {!isChatOpen && !hideAvatarRing && (
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-primary/30 pointer-events-none"
               animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
@@ -147,10 +190,13 @@ export function CharacterChat() {
                 >
                   <div
                     className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
-                      msg.from === "user"
+                      msg.color
+                        ? `text-white ${msg.from === "user" ? "rounded-br-sm" : "rounded-bl-sm"}`
+                        : msg.from === "user"
                         ? "bg-primary text-primary-foreground rounded-br-sm"
                         : "bg-muted text-foreground rounded-bl-sm"
                     }`}
+                    style={msg.color ? { backgroundColor: msg.color } : undefined}
                   >
                     {msg.text}
                   </div>
@@ -177,9 +223,12 @@ export function CharacterChat() {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => handleQuestion(q)}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border bg-background hover:bg-muted transition-colors text-sm shadow-sm"
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors text-sm shadow-sm ${
+              legoColors ? "text-white" : "border bg-background hover:bg-muted"
+            }`}
+            style={legoColors ? { backgroundColor: questionColors[q] } : undefined}
           >
-            <Send className="w-3 h-3 opacity-50" />
+            <Send className={`w-3 h-3 ${legoColors ? "opacity-80" : "opacity-50"}`} />
             {q}
           </motion.button>
         ))}

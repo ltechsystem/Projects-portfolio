@@ -11,6 +11,7 @@ interface ProjectCardProps {
   thumbnailUrl?: string;
   githubUrl?: string;
   liveUrl?: string;
+  legoColor?: string;
 }
 
 export function ProjectCard({
@@ -21,6 +22,7 @@ export function ProjectCard({
   thumbnailUrl,
   githubUrl,
   liveUrl,
+  legoColor,
 }: ProjectCardProps) {
   const [isHovering, setIsHovering] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -43,8 +45,17 @@ export function ProjectCard({
   };
 
   return (
-    <Card 
-      className="overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer group"
+    <Card
+      className={`overflow-hidden transition-all duration-300 cursor-pointer group ${
+        legoColor
+          ? "rounded-3xl border-[3px] bg-white hover:-translate-x-1 hover:-translate-y-1"
+          : "hover:shadow-lg"
+      }`}
+      style={
+        legoColor
+          ? { borderColor: legoColor, boxShadow: `6px 6px 0 ${legoColor}` }
+          : undefined
+      }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -112,7 +123,16 @@ export function ProjectCard({
       <CardContent>
         <div className="flex flex-wrap gap-2">
           {technologies.map((tech, index) => (
-            <Badge key={index} variant="secondary">
+            <Badge
+              key={index}
+              variant={legoColor ? "outline" : "secondary"}
+              className={legoColor ? "border-2 font-semibold" : undefined}
+              style={
+                legoColor
+                  ? { borderColor: legoColor, color: legoColor, backgroundColor: `${legoColor}1A` }
+                  : undefined
+              }
+            >
               {tech}
             </Badge>
           ))}

@@ -9,8 +9,14 @@ import cryptoDashboard from "../../media/thumbnail/cryptoDashboard.png";
 import vSaver from "../../media/thumbnail/vSaver.png";
 import ibmHack from "../../media/thumbnail/ibmHack.png";
 import beerInterface from "../../media/thumbnail/beerInterface.png";
+import { LEGO_COLORS } from "./legoColors";
 
-export default function App() {
+export default function App({
+  avatarSrc,
+  titleSrc,
+  legoColors,
+  hideAvatarRing,
+}: { avatarSrc?: string; titleSrc?: string; legoColors?: boolean; hideAvatarRing?: boolean } = {}) {
   const [scrollOpacity, setScrollOpacity] = useState(1);
 
   useEffect(() => {
@@ -74,7 +80,11 @@ export default function App() {
         <div className="container mx-auto px-4 py-12 md:py-20">
           {/* Name + social links */}
           <div className="text-center mb-10">
-            <h1 className="mb-2">Hi welcome, I am Joachim Low </h1>
+            {titleSrc ? (
+              <img src={titleSrc} alt="Joachim Low" className="mx-auto mb-2 max-h-24 w-auto" />
+            ) : (
+              <h1 className="mb-2">Hi welcome, I am Joachim Low </h1>
+            )}
             <div className="flex justify-center gap-6 mt-4">
               <a
                 href="https://github.com/Ltechsystem"
@@ -105,7 +115,7 @@ export default function App() {
           </div>
 
           {/* Interactive character */}
-          <CharacterChat />
+          <CharacterChat avatarSrc={avatarSrc} legoColors={legoColors} hideAvatarRing={hideAvatarRing} />
         </div>
       </header>
 
@@ -136,11 +146,22 @@ export default function App() {
           <p className="text-muted-foreground">
             Click on the GitHub icon to view the source code.
           </p>
+          {legoColors && (
+            <div className="flex gap-1.5 mt-3">
+              {LEGO_COLORS.map((c) => (
+                <span key={c} className="h-1.5 w-8 rounded-full" style={{ backgroundColor: c }} />
+              ))}
+            </div>
+          )}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <ProjectCard key={index} {...project} />
+            <ProjectCard
+              key={index}
+              {...project}
+              legoColor={legoColors ? LEGO_COLORS[index % LEGO_COLORS.length] : undefined}
+            />
           ))}
         </div>
       </main>
