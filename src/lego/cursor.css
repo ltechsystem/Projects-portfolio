@@ -1,0 +1,9 @@
+body {
+  cursor: url("../../media/Cursor/3024-cursor.png") 24 20, auto;
+}
+
+a,
+button,
+[role="button"] {
+  cursor: url("../../media/Cursor/3024-cursor.png") 24 20, pointer;
+}
